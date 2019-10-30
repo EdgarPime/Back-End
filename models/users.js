@@ -34,7 +34,7 @@ const getCars = async (req,res ,next) => {
             if (!err) {  
               client.set(KeyCars,JSON.stringify(docs))
               console.log(KeyCars);
-              client.expire(KeyCars,40);
+              client.expire(KeyCars,20);
               res.status(200).json(docs);
                
             }
@@ -73,7 +73,7 @@ const getOneCar = async (req, res, next) => {
         Car.findById(req.params.id, (err, doc) => {
           if (!err) { 
               client.set(KeyCar,JSON.stringify(doc))
-              client.expire(KeyCar,40);
+              client.expire(KeyCar,20);
               res.status(200).send(doc); 
               
               
