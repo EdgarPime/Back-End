@@ -6,7 +6,8 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var config= require('../redis');
 
 var redis = require('redis');
-var client = redis.createClient(config.redisConf);
+// var client = redis.createClient(config.redisConf);
+var client = redis.createClient('redis://redis:6379');
 
 client.on('connect', function() {
   console.log('connected Redis');
