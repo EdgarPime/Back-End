@@ -1,0 +1,26 @@
+version: '3'
+services:
+  nodejs:
+    image: pime/grudcompleto
+    restart: always
+    ports:
+      - '8000:4200'
+    expose:
+      - '4200'
+  app:
+    container_name: expressmongo
+    restart: always
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - redis
+      - mongo
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  mongo:    
+    image: mongo
+    ports:
+      - "27017:27017"
