@@ -7,7 +7,7 @@ var config= require('../redis');
 
 var redis = require('redis');
 // var client = redis.createClient(config.redisConf);
-var client = redis.createClient('redis://redis:6379');
+var client = redis.createClient('redis://10.0.75.1:6379');
 
 client.on('connect', function() {
   console.log('connected Redis');
