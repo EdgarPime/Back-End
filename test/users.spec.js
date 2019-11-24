@@ -84,7 +84,7 @@ describe('User Manager', () => {
           json: sendMock
         }
     
-        getOneCar(reqMock, resMock, nextMock)
+       
        
 
         await getOneCar(reqMock, resMock, nextMock).then(() => {
@@ -281,12 +281,13 @@ describe('User Manager', () => {
     
         const resMock = {
           status: statusMock,
+          json: sendMock,
           send: sendMock
         }
 
         await deleteCar(reqMock, resMock, nextMock).then(() => {
             sinon.assert.calledWith(statusMock, 204)
-            inon.assert.called(sendMock)
+            sinon.assert.called(sendMock)
         }).catch(() => { })
       })
   

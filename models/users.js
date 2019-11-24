@@ -3,14 +3,24 @@ var express = require('express');
 var router = express.Router();
 var ObjectId = require('mongoose').Types.ObjectId;
 
-var config= require('../redis');
+var config= require('config');
 
 var redis = require('redis');
 // var client = redis.createClient(config.redisConf);
-var client = redis.createClient('redis://10.0.75.1:6379');
+var client = redis.createClient(config.get('Customer.redis'));
 
+// const dbConfig = config.get('Customer.redis');
+
+
+var comprobar=false;
 client.on('connect', function() {
+  comprobar=true;
   console.log('connected Redis');
+});
+
+client.on('error', function() {
+  comprobar=false;
+  console.log('No conecto con Redis');
 });
 
 var KeyCars = "getCars";
@@ -19,6 +29,7 @@ const { Car } = require('../models/car');
 
 
 const getCars = async (req,res ,next) => {
+  if(comprobar){
     client.exists(KeyCars, function(err, reply) {
       if (reply === 1) {
 
@@ -40,14 +51,31 @@ const getCars = async (req,res ,next) => {
               client.expire(KeyCars,20);
               res.status(200).json(docs);
                
+            } else {
+
+              res.status(500).send('Error en el servidor');
+
             }
-            // else { return console.log('Error in Retriving Cars :' + JSON.stringify(err, undefined, 2)); }
+            
           });
 
       }
-    });  
-  
-   
+    }); 
+  } else {
+    Car.find((err, docs) => {
+      if (!err) {  
+
+        res.status(200).json(docs);
+         
+      } else {
+
+        res.status(500).send('Error en el servidor');
+
+      }
+      
+    });
+  }
+
 }
 
 const getOneCar = async (req, res, next) => {
@@ -59,36 +87,52 @@ const getOneCar = async (req, res, next) => {
     return res.status(404).json({ message: `No record with given id : ${req.params.id}` });
   }
   
-  client.exists(KeyCar, function(err, reply) {
-    if (reply === 1) {
+  if(comprobar){
+    client.exists(KeyCar, function(err, reply) {
+      if (reply === 1) {
+  
+          console.log('exists');
+  
+          client.get(KeyCar, function(error,respuesta){
+  
+            res.status(200).json(JSON.parse(respuesta));
+  
+          })
+  
+      } else {
+          console.log('doesn\'t exist');
+  
+          Car.findById(req.params.id, (err, doc) => {
+            if (!err) { 
+                client.set(KeyCar,JSON.stringify(doc))
+                client.expire(KeyCar,20);
+                res.status(200).send(doc); 
+                
+                
+              }else {
+  
+                res.status(500)//.send('Error en el servidor');
+          
+              }
+        });
+  
+  
+      }
+    }); 
+  } else {
+    Car.findById(req.params.id, (err, doc) => {
+      if (!err) { 
+          
+          res.status(200).send(doc); 
+          
+        }else {
 
-        console.log('exists');
+          res.status(500)//.send('Error en el servidor');
 
-        client.get(KeyCar, function(error,respuesta){
-
-          res.status(200).json(JSON.parse(respuesta));
-
-        })
-
-    } else {
-        console.log('doesn\'t exist');
-
-        Car.findById(req.params.id, (err, doc) => {
-          if (!err) { 
-              client.set(KeyCar,JSON.stringify(doc))
-              client.expire(KeyCar,20);
-              res.status(200).send(doc); 
-              
-              
-            }
-        //   else { 
-        //       console.log('Error in Retriving Car :' + JSON.stringify(err, undefined, 2)); 
-        //     }
-      });
-
-
-    }
-  });  
+        }
+  });
+  }
+   
 
   
 }
@@ -114,8 +158,11 @@ const addCar = async (req,res, next) => {
       res.status(201).send(doc);
       
       
+    }else {
+
+      res.status(500).send('Error en el servidor');
+
     }
-    // else { console.log('Error in Car Save :' + JSON.stringify(err, undefined, 2)); }
   });
 
 }
@@ -145,11 +192,17 @@ const updateCar = async (req, res, next) => {
 
     Car.findByIdAndUpdate(req.params.id, { $set: car }, { new: true }, (err, doc) => {
     if (!err) {
-      res.status(204).send(doc); 
-      }
-    // else { console.log('Error in Car Update :' + JSON.stringify(err, undefined, 2)); }
-    });
 
+      res.status(204).send(doc); 
+
+    }else {
+
+      res.status(500).send('Error en el servidor');
+
+    }
+    
+    });
+  
 
 }
 
@@ -158,17 +211,23 @@ const deleteCar = async (req, res ,next) => {
     if (!ObjectId.isValid(req.params.id)){
       
       return res.status(404).send(`No record with given id : ${req.params.id}` );
-      
-        
+    
     }
      
 
     
     Car.findByIdAndRemove(req.params.id, (err, doc) => {
         if (!err) { 
-          res.status(204).send()
+
+          res.status(204);
+          res.send();
+
+        }else {
+
+          res.status(500)//.send('Error en el servidor');
+
         }
-        // else { console.log('Error in Car Delete :' + JSON.stringify(err, undefined, 2)); }
+        
     });
 
 }

@@ -1,6 +1,8 @@
+const config = require('config');
+const MongoConfig= config.get('Customer.dbConfig');
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://10.0.75.1:27017/CrudDB', (err) => {
+mongoose.connect('mongodb://'+MongoConfig.host+':'+MongoConfig.port+'/'+ MongoConfig.dbName, (err) => {
     if (!err)
         console.log('MongoDB connection succeeded.');
     else
@@ -8,3 +10,5 @@ mongoose.connect('mongodb://10.0.75.1:27017/CrudDB', (err) => {
 });
 
 module.exports = mongoose;
+
+//10.0.75.1

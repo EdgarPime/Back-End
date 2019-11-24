@@ -1,0 +1,10 @@
+{
+    "Customer": {
+      "dbConfig": {
+        "host": "mongo.westus.azurecontainer.io"
+      },
+      "redis": {
+        "host": "redis.westus.azurecontainer.io"
+      }
+    }
+  }

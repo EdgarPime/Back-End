@@ -1,0 +1,13 @@
+{
+    "Customer": {
+      "dbConfig": {
+        "host": "localhost",
+        "port": 27017,
+        "dbName": "CrudDB"
+      },
+      "redis": {
+        "host": "localhost",
+        "port": 6379
+      }
+    }
+  }
