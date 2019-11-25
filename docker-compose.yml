@@ -8,9 +8,8 @@ services:
     expose:
       - '4200'
   app:
-    container_name: expressmongo
+    image: pime/expressmongo
     restart: always
-    build: .
     ports:
       - '3000:3000'
     depends_on:

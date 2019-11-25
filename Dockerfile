@@ -1,5 +1,9 @@
 FROM node:10
 
+ARG PROD=production
+
+ENV NODE_ENV ${PROD}
+
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -17,4 +21,4 @@ COPY . .
 EXPOSE 3000
 
 
-CMD [ "node", "app" ]
+CMD [ "npm", "run" , "prod" ]
